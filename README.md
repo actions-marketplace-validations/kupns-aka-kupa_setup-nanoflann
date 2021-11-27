@@ -1,31 +1,29 @@
-# Setup Eigen3 docker action
+# Setup [nanoflann](https://github.com/jlblancoc/nanoflann) docker action
 
-Set up your GitHub Actions workflow with a specific version of the Eigen3
+Set up your GitHub Actions workflow with a specific version of the nanoflann
 
 ## Inputs
 
 ## `version`
 
-**Required** Version of eigen. Default `latest`.
+**Not Required** Version of nanoflann. Default `latest`.
 
 ## Example usage
 
 ```yml
-      - name: Install Eigen3
-        uses: kupns-aka-kupa/setup-eigen3@v1
+      - name: Install nanoflann
+        uses: kupns-aka-kupa/setup-nanoflann@v1
         with:
-          version: 3.4.0
-        env:
-          CMAKE_GENERATOR: ${{ matrix.gen }}
+          version: 1.1.1
 ```
 
 ### Specify target platform
 
-Env `CMAKE_GENERATOR`. Default `Unix Makefiles`
+Env `CMAKE_GENERATOR`. Default depends on platform
 
 ```yml
-      - name: Install Eigen3
-        uses: kupns-aka-kupa/setup-eigen3@v1
+      - name: Install nanoflann
+        uses: kupns-aka-kupa/setup-nanoflann@v1
         env:
           CMAKE_GENERATOR: MinGW Makefiles
 ```

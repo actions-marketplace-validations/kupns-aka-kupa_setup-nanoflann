@@ -69,9 +69,6 @@ cmake --install ${build_dir} --config Release
 cmake_module_path="${project_install_dir}/lib/cmake/${repo}"
 pkg_config_path="${project_install_dir}/lib/pkgconfig"
 
-# shellcheck disable=SC2046
-cp $(ls -d "${project_dir}"/cmake/*.cmake) "${cmake_module_path}"
-
 {
   echo "nanoflann_DIR=${cmake_module_path}"
   echo "nanoflann_Dir=${cmake_module_path}"
