@@ -1,4 +1,4 @@
-name: Test Eigen3 setup
+name: Test nanoflann setup
 on: [push]
 
 env:
@@ -7,7 +7,7 @@ env:
 jobs:
   build_test_project:
     runs-on: ${{ matrix.os }}
-    name: Build project with Eigen3
+    name: Build project with nanoflann
     strategy:
       matrix:
         include:
@@ -15,23 +15,20 @@ jobs:
             gen: MinGW Makefiles
 
           - os: ubuntu-latest
-            gen: Ninja
+            gen: Unix Makefiles
     steps:
       - uses: actions/checkout@v2
 
-      - name: Setup Ninja
-        uses: seanmiddleditch/gha-setup-ninja@master
-
-      - name: Install Eigen3
+      - name: Install nanoflann
         uses: ./
-        id: install-eigen3
+        id: install-nanoflann
         env:
           CMAKE_GENERATOR: ${{ matrix.gen }}
         with:
           version: 3.4.0
 
-      - name: Check Eigen cmake module
-        run: cmake --find-package -DNAME=Eigen3 -DCOMPILER_ID=GNU -DLANGUAGE=C -DMODE=EXIST
+      - name: Check nanoflann cmake module
+        run: cmake --find-package -DNAME=nanoflann -DCOMPILER_ID=GNU -DLANGUAGE=C -DMODE=EXIST
 
       - name: Create Build Environment
         run: cmake -E make_directory ${{github.workspace}}/build

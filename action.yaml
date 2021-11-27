@@ -1,8 +1,8 @@
-name: 'Setup Eigen3'
-description: 'Setup workflow with Eigen3'
+name: 'Setup nanoflann'
+description: 'Setup workflow with nanoflann'
 inputs:
   version:
-    description: 'Eigen3 version'
+    description: 'nanoflann version'
     required: false
     default: latest
 branding:

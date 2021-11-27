@@ -16,25 +16,34 @@ function debug()
 }
 
 version=${1:-latest}
-project_id=15462818
-gitlab="https://gitlab.com/api/v4/projects"
+owner=jlblancoc
+repo=nanoflann
+github="https://api.github.com"
 
-releases=$(curl -s "${gitlab}/${project_id}/releases" | jq -cr '.[].tag_name')
+releases=$(curl -s "${github}/repos/${owner}/${repo}/releases" | jq -cr '.[].tag_name')
+
 latest=$(echo "${releases}" | head -n 1)
 
 if [[ "${version}" == "latest" ]]
 then
   version=${latest}
   debug "Found ${version} latest release"
-elif ! grep -q "${version}" <<< "${releases}"
-then
-  warning "Not found ${version} release"
-  version=${latest}
+else
+  search=$(grep "${version}" <<< "${releases}" | head -n 1)
+
+  if [[ -z "${search}" ]]
+  then
+    warning "Not found ${version} release"
+    version=${latest}
+  else
+    version=${search}
+    debug "Found ${search} release"
+  fi
 fi
 
 debug "Installing ${version} release..."
 
-release_source=$(curl -s "${gitlab}/${project_id}/releases/${version}" | jq -rc '.assets.sources[] | select( .format == "tar.gz" ).url')
+release_source=$(curl -s "${github}/repos/${owner}/${repo}/releases/tags/${version}" | jq -rc '.tarball_url')
 
 if ! command -v wget &> /dev/null
 then
@@ -43,24 +52,31 @@ else
   wget -qO- "${release_source}" | tar -xvz > /dev/null
 fi
 
-eigen_install_dir="${GITHUB_WORKSPACE}/Eigen3"
-eigen_dir="eigen-${version}"
+project_install_dir="${GITHUB_WORKSPACE}/${repo}"
+project_dir=$(find . -name "${owner}-${repo}*")
 
-cmake -E make_directory build
-cmake "${eigen_dir}" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="${eigen_install_dir}" -DEIGEN_BUILD_PKGCONFIG=ON
-cmake --install . --config Release
+build_dir=${repo}_build_dir
+cmake -E make_directory ${build_dir}
+cmake -B ${build_dir} -S "${project_dir}" \
+-DCMAKE_BUILD_TYPE=Release \
+-DCMAKE_INSTALL_PREFIX="${project_install_dir}" \
+-DBUILD_EXAMPLES=OFF \
+-DBUILD_BENCHMARKS=OFF \
+-DBUILD_TESTS=OFF
 
-cmake_module_path="${eigen_install_dir}/share/eigen3/cmake"
-pkg_config_path="${eigen_install_dir}/share/pkgconfig"
+cmake --install ${build_dir} --config Release
+
+cmake_module_path="${project_install_dir}/lib/cmake/${repo}"
+pkg_config_path="${project_install_dir}/lib/pkgconfig"
 
 # shellcheck disable=SC2046
-cp $(ls -d "${eigen_dir}"/cmake/*.cmake) "${cmake_module_path}"
+cp $(ls -d "${project_dir}"/cmake/*.cmake) "${cmake_module_path}"
 
 {
-  echo "Eigen3_DIR=${cmake_module_path}"
-  echo "Eigen3_Dir=${cmake_module_path}"
+  echo "nanoflann_DIR=${cmake_module_path}"
+  echo "nanoflann_Dir=${cmake_module_path}"
   echo "PKG_CONFIG_PATH=${pkg_config_path}"
 } >> "${GITHUB_ENV}"
 
 
-debug "Successfully setup Eigen3 of ${version} version"
+debug "Successfully setup nanoflann of ${version} version"
