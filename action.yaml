@@ -1,0 +1,17 @@
+name: 'Setup Eigen3'
+description: 'Setup workflow with Eigen3'
+inputs:
+  version:
+    description: 'Eigen3 version'
+    required: false
+    default: latest
+branding:
+  icon: 'archive'
+  color: 'green'
+runs:
+  using: "composite"
+  steps:
+    - run: ${GITHUB_ACTION_PATH}/deps.sh
+      shell: bash
+    - run: ${GITHUB_ACTION_PATH}/entrypoint.sh ${{ inputs.version }}
+      shell: bash
